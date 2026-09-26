@@ -1,8 +1,8 @@
 # Development Workflow
 
-Version 3.0 · Source and updates: https://github.com/jasperhan99/multi-agents-workflow
+Version 3.1 · Source and updates: https://github.com/jasperhan99/multi-agents-workflow
 
-This file is the complete rule set. Any AI coding agent that reads it can follow it without other files, tools or plugins. Reply in the human's language.
+This file is the complete rule set. Any AI coding agent that reads it can follow it without other rule files or plugins. Delegated model calls require pi CLI. Reply in the human's language.
 
 **Loop:** plan → human approves → implement + real checks → independent review (max 3 rounds) → human authorizes merge/push.
 
@@ -10,8 +10,26 @@ This file is the complete rule set. Any AI coding agent that reads it can follow
 
 - **Human**: approves plans, makes high-risk decisions, authorizes merge and push.
 - **Coordinator** (you, the main agent): writes the plan, keeps the task record, runs checks, arranges review, reports.
-- **Implementer**: writes the code. The coordinator itself, or a subagent if your tool has them.
+- **Implementer**: writes the code. The coordinator itself, or a separate model session invoked through pi CLI.
 - **Reviewer**: independent, read-only, fresh context. Never the context that wrote the code.
+
+## Model calls through pi CLI
+
+- Use **pi CLI** whenever the coordinator delegates implementation, review or another model task. The coordinator may run in any host agent; this rule governs the model calls it initiates. Do not substitute direct provider API calls or the host's native subagents.
+- Before the first call, check `pi --version`, `pi --help` and `pi --list-models`. Use the human's or project's configured provider and model, and pass them explicitly with `--provider` and `--model`. If pi, credentials or the requested model are unavailable, report the blocker; do not silently switch providers or models.
+- Run from the project root. Use `--print --no-session` for a fresh, non-interactive call, and pass WORKFLOW.md, the task file and the role prompt as context. Never use `--continue`, `--resume`, `--session`, `--session-id` or `--fork` for an independent review.
+- For reviewers, disable extensions and allow only `read,grep,find,ls`. Supply the diff, changed/new file list and real check results as files because the reviewer has no shell. These tool restrictions are not an OS sandbox.
+- Record the provider, model, role, command (without secrets), exit status and result in the task file. A successful process exit alone is not a review PASS. Missing output or a failed call is a blocker, not evidence of success. Use pi's existing authentication or environment variables; never put credentials in prompts or task records.
+- The optional pi adapter may wrap these calls, provided it preserves fresh review context and the same tool restrictions. Delegated workers must not recursively start other agents.
+
+Example reviewer invocation (replace the provider, model and file paths with the actual values; `review-prompt.md` contains the reviewer prompt below with the task path and SHAs filled in):
+
+```bash
+pi --provider "PROVIDER" --model "MODEL_ID" \
+  --print --no-session --no-extensions --tools read,grep,find,ls \
+  @WORKFLOW.md @workflow/T-NNN-short-name.md @review-prompt.md \
+  @review.diff @changed-files.txt @check-results.txt
+```
 
 ## 1. Plan
 
@@ -35,8 +53,8 @@ Skipping approval: if the human says so with the request (for example "no need t
 
 Give the reviewer: the task file, base SHA, candidate SHA, `git diff <base>..<candidate>`, the full list of changed and new files, and the check results.
 
-- Preferred: a subagent with read-only tools and a fresh context, using the reviewer prompt below.
-- No subagents: ask the human to open a new session and paste the reviewer prompt.
+- Start a fresh pi CLI session with read-only tools, using the reviewer prompt below and the model-call rules above.
+- If pi cannot run, report the blocker. A manual fresh-session review is allowed only if the human explicitly authorizes that fallback; record the decision.
 - Never review your own work in the same context. If no independent review is possible, say so and let the human decide; record the decision.
 
 The reviewer returns one verdict:
@@ -100,6 +118,10 @@ Base SHA:
 ## Checks
 | Command | Result |
 | --- | --- |
+
+## Model calls
+| Role | Provider / model | Command (no secrets) | Exit status | Result |
+| --- | --- | --- | --- | --- |
 
 ## Reviews
 - Round 1 — candidate `<sha>` — PASS / CHANGES_REQUESTED / BLOCKED — findings

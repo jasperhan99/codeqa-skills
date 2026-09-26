@@ -6,7 +6,7 @@ One file, [WORKFLOW.md](WORKFLOW.md), that any AI coding agent can read and foll
 
 **plan → you approve → implement + real checks → independent review (max 3 rounds) → you authorize merge/push.**
 
-No installer, no scripts, no required plugins. Works with Claude Code, Codex, Cursor, Gemini CLI, pi, Copilot and any agent that reads project instruction files.
+No installer, no scripts, no required plugins. Delegated model calls use pi CLI, which must be installed and authenticated. Works with Claude Code, Codex, Cursor, Gemini CLI, pi, Copilot and any agent that reads project instruction files.
 
 ## Quick start
 
@@ -55,7 +55,7 @@ Use `CLAUDE.md`, `GEMINI.md` or your tool's file instead of `AGENTS.md` if that 
 ## How it works
 
 - **Task files** in `workflow/T-NNN-*.md` hold each task's plan, approval, check results and reviews. They are the source of truth, so a new session can resume from them.
-- **Independent review**: the reviewer must not be the context that wrote the code. Agents use a read-only subagent when they have one; otherwise you open a new session and paste the reviewer prompt at the end of WORKFLOW.md.
+- **Independent review**: the reviewer must not be the context that wrote the code. The coordinator invokes a fresh pi CLI session with read-only tools and an explicit provider/model. If pi is unavailable, it reports a blocker; a manual fresh-session review needs your explicit authorization.
 - **You stay in control**: nothing is merged, pushed or deployed without your explicit answer; product, security, architecture and other risky decisions are asked, not assumed.
 
 The workflow is instructions, not enforcement. Use branch protection, CI and scoped credentials where you need real guarantees.

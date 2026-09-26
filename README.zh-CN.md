@@ -6,7 +6,7 @@
 
 **计划 → 你批准 → 实现 + 真实检查 → 独立审查（最多 3 轮）→ 你授权合并/推送。**
 
-没有安装器、没有脚本、不依赖任何插件。适用于 Claude Code、Codex、Cursor、Gemini CLI、pi、Copilot，以及任何会读取项目指令文件的 agent。
+没有安装器、没有脚本、不依赖任何插件。委派模型任务统一通过 pi CLI 调用，需要先安装 pi 并配置认证。适用于 Claude Code、Codex、Cursor、Gemini CLI、pi、Copilot，以及任何会读取项目指令文件的 agent。
 
 ## 快速开始
 
@@ -35,7 +35,7 @@ echo "Before any development task, read WORKFLOW.md and follow it." >> AGENTS.md
 ## 工作方式
 
 - **任务文件** `workflow/T-NNN-*.md` 记录每个任务的计划、批准、检查结果和审查结论，是唯一的事实来源；新会话从这里恢复。
-- **独立审查**：审查者不能是写代码的同一个上下文。agent 有 subagent 就用只读 subagent；否则你开一个新会话，粘贴 WORKFLOW.md 末尾的审查提示词。
+- **独立审查**：审查者不能是写代码的同一个上下文。协调者通过 pi CLI 启动全新的只读会话，并明确指定 provider 和模型。pi 不可用时报告阻塞；只有你明确授权，才改用手动新会话审查。
 - **你始终掌控**：没有你的明确答复，不会合并、推送或部署；产品、安全、架构等高风险决定会先问你。
 
 WORKFLOW.md 用英文写，agent 会用你的语言回复。这是给 agent 的指令，不是强制机制；需要真正保证时，用分支保护、CI 和最小权限凭据。
