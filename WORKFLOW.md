@@ -1,6 +1,6 @@
 # Development Workflow
 
-Version 3.1 · Source and updates: https://github.com/jasperhan99/multi-agents-workflow
+Version 3.2 · Source and updates: https://github.com/jasperhan99/multi-agents-workflow
 
 This file is the complete rule set. Any AI coding agent that reads it can follow it without other rule files or plugins. Delegated model calls require pi CLI. Reply in the human's language.
 
@@ -13,11 +13,29 @@ This file is the complete rule set. Any AI coding agent that reads it can follow
 - **Implementer**: writes the code. The coordinator itself, or a separate model session invoked through pi CLI.
 - **Reviewer**: independent, read-only, fresh context. Never the context that wrote the code.
 
+## Model configuration
+
+The project's AGENTS.md (or the instruction file the coordinator reads) records which model each delegated role uses:
+
+```markdown
+## Workflow models
+| Role | Provider | Model | Thinking |
+| --- | --- | --- | --- |
+| Implementer | anthropic | claude-sonnet-5-5 | medium |
+| Reviewer | openai-codex | gpt-6-sol | high |
+```
+
+- If the table is missing, ask the human on the first task which provider and model to use for each role, show the output of `pi --list-models` as the options, and offer to add the table to AGENTS.md. Never pick a model silently.
+- The reviewer should be at least as capable as the implementer. Prefer a different model family from the one that wrote the code, so blind spots are less likely to be shared. If only one model is available, a fresh session of the same model is still acceptable; note it in the task file.
+- Thinking is optional; omit it to use pi's default. Valid levels are those in `pi --help` (for example `low`, `medium`, `high`).
+- A one-off override from the human ("review this one with X") applies to that task only; record it in the task file. Changing the table itself is a durable change and needs the human's agreement.
+- The coordinator is whatever host agent the human is using; this table does not choose it.
+
 ## Model calls through pi CLI
 
 - Use **pi CLI** whenever the coordinator delegates implementation, review or another model task. The coordinator may run in any host agent; this rule governs the model calls it initiates. Do not substitute direct provider API calls or the host's native subagents.
-- Before the first call, check `pi --version`, `pi --help` and `pi --list-models`. Use the human's or project's configured provider and model, and pass them explicitly with `--provider` and `--model`. If pi, credentials or the requested model are unavailable, report the blocker; do not silently switch providers or models.
-- Run from the project root. Use `--print --no-session` for a fresh, non-interactive call, and pass WORKFLOW.md, the task file and the role prompt as context. Never use `--continue`, `--resume`, `--session`, `--session-id` or `--fork` for an independent review.
+- Before the first call, check `pi --version`, `pi --help`, `pi --list-models` and `pi auth check --provider PROVIDER --model MODEL_ID`. Use the models from **Model configuration**, and pass them explicitly with `--provider`, `--model` and, if set, `--thinking`. Do not rely on pi's default model. If pi, credentials or the requested model are unavailable, report the blocker; do not silently switch providers or models.
+- Run from the project root. Use `--print --no-session` for a fresh, non-interactive call, and pass WORKFLOW.md, the task file and the role prompt as context. Give each call only what its role needs; the task file, not the coordinator's conversation, carries the state between calls. Never use `--continue`, `--resume`, `--session`, `--session-id` or `--fork` for an independent review.
 - For reviewers, disable extensions and allow only `read,grep,find,ls`. Supply the diff, changed/new file list and real check results as files because the reviewer has no shell. These tool restrictions are not an OS sandbox.
 - Record the provider, model, role, command (without secrets), exit status and result in the task file. A successful process exit alone is not a review PASS. Missing output or a failed call is a blocker, not evidence of success. Use pi's existing authentication or environment variables; never put credentials in prompts or task records.
 - The optional pi adapter may wrap these calls, provided it preserves fresh review context and the same tool restrictions. Delegated workers must not recursively start other agents.
@@ -25,11 +43,21 @@ This file is the complete rule set. Any AI coding agent that reads it can follow
 Example reviewer invocation (replace the provider, model and file paths with the actual values; `review-prompt.md` contains the reviewer prompt below with the task path and SHAs filled in):
 
 ```bash
-pi --provider "PROVIDER" --model "MODEL_ID" \
+pi --provider "PROVIDER" --model "MODEL_ID" --thinking high \
   --print --no-session --no-extensions --tools read,grep,find,ls \
   @WORKFLOW.md @workflow/T-NNN-short-name.md @review-prompt.md \
   @review.diff @changed-files.txt @check-results.txt
 ```
+
+Example implementer invocation (the implementer needs a shell and edit tools; `implement-prompt.md` names the task file, branch and base SHA and asks for the **Implement** section only):
+
+```bash
+pi --provider "PROVIDER" --model "MODEL_ID" --thinking medium \
+  --print --no-session --no-extensions --tools read,grep,find,ls,bash,edit,write \
+  @WORKFLOW.md @workflow/T-NNN-short-name.md @implement-prompt.md
+```
+
+Put the prompt and evidence files (`review-prompt.md`, `review.diff` and so on) in `workflow/tmp/` and never stage them; the task file records their results.
 
 ## 1. Plan
 
@@ -120,7 +148,7 @@ Base SHA:
 | --- | --- |
 
 ## Model calls
-| Role | Provider / model | Command (no secrets) | Exit status | Result |
+| Role | Provider / model / thinking | Command (no secrets) | Exit status | Result |
 | --- | --- | --- | --- | --- |
 
 ## Reviews
