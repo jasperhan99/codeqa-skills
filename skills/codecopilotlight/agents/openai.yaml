@@ -1,0 +1,6 @@
+interface:
+  display_name: "CodeCopilot Light"
+  short_description: "Implement directly with necessary tests"
+  default_prompt: "Use $codecopilotlight to implement this task directly and run necessary tests without independent QA."
+policy:
+  allow_implicit_invocation: false

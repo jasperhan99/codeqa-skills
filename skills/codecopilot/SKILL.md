@@ -1,9 +1,20 @@
 ---
-name: codeqa
-description: Default coding workflow with necessary tests and independent QA. Use for /codeqa, $codeqa, or an explicit request for reviewed implementation. Use codeqa-light when the user requests lightweight development without independent review.
+name: codecopilot
+description: Implementation with necessary tests and independent QA. Use only when the user explicitly invokes /codecopilot or $codecopilot, or selects this skill in the host skill picker. Never activate for ordinary coding requests.
+disable-model-invocation: true
 ---
 
-# CodeQA — default
+# CodeCopilot — default
+
+## Explicit invocation only
+
+Apply this workflow only to a task explicitly started with /codecopilot, $codecopilot,
+or this skill selected in the host picker. Mentioning or editing this skill is not
+an invocation. Follow-ups may continue that same task; a new task without an explicit
+invocation uses neither CodeCopilot skill. Do not infer activation from task complexity,
+requests for testing/review, or a prior completed task. “Default” names the reviewed
+mode after invocation; it never means automatic activation.
+
 
 Implement the user's task with the optimized continuous-coordinator workflow in
 [references/workflow.md](references/workflow.md). Read that reference when this
@@ -19,7 +30,7 @@ to install a separate WORKFLOW.md.
   Do not claim a model call's successful exit is a QA PASS.
 - Verify blocking findings before fixing them; send disputed evidence to a fresh
   independent reviewer. Count adjudication toward the three-round limit.
-- Do not silently downgrade to codeqa-light if QA is unavailable. Report the
+- Do not silently downgrade to codecopilotlight if QA is unavailable. Report the
   blocker. Switching modes requires the user's instruction.
 - Report the result, real checks, review verdict and remaining limitations briefly.
   Merge, push and deployment still need their own authorization.

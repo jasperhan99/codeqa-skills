@@ -1,34 +1,38 @@
-# CodeQA
+# CodeCopilot
 
 给 **Codex 和 Claude Code** 共用的两个开发技能。
 
 | 技能 | 工作方式 | 独立 QA |
 | --- | --- | --- |
-| `codeqa`（默认） | 同一协调上下文连续开发、必要测试、简短记录、独立审查 | 有 |
-| `codeqa-light`（轻量） | 直接开发＋必要测试 | 无 |
+| `codecopilot`（默认） | 同一协调上下文连续开发、必要测试、简短记录、独立审查 | 有 |
+| `codecopilotlight`（轻量） | 直接开发＋必要测试 | 无 |
+| 不加指令 | 普通任务，不启用这两个技能 | 不由这两个技能要求 |
+
+两个技能都只允许显式调用。“默认”指主动选择后的标准流程，不代表自动启用。
+同一任务的后续补充可以继续当前流程；新任务不加指令就不启用。旧指令已移除。
 
 ## 调用
 
 Claude Code：
 
 ```text
-/codeqa 给接口加分页。
-/codeqa-light 修复空状态文案，并运行相关检查。
+/codecopilot 给接口加分页。
+/codecopilotlight 修复空状态文案，并运行相关检查。
 ```
 
 Codex：
 
 ```text
-$codeqa 给接口加分页。
-$codeqa-light 修复空状态文案，并运行相关检查。
+$codecopilot 给接口加分页。
+$codecopilotlight 修复空状态文案，并运行相关检查。
 ```
 
 Codex 也可以通过 `/skills` 选择。它的原生技能入口不是任意自定义的
-`/codeqa` 斜杠命令；两边使用的是同一份技能内容。
+`/codecopilot` 斜杠命令；两边使用的是同一份技能内容。
 
 ## 安装与共享仓库
 
-只安装这两个技能，可将 `skills/codeqa` 和 `skills/codeqa-light` 目录分别
+只安装这两个技能，可将 `skills/codecopilot` 和 `skills/codecopilotlight` 目录分别
 链接到 `~/.agents/skills`（Codex）和 `~/.claude/skills`（Claude Code）。
 完整命令见[英文说明](README.md#install-these-two-skills)。
 
@@ -60,7 +64,7 @@ Codex／Claude 同名但内容不同的技能会保留各自版本；系统内�
 
 ## 名称与历史
 
-当前项目建议命名为 **codeqa**；独立个人技能集合建议命名为 **agent-skills**。
+当前项目为 [codecopilot-skills](https://github.com/jasperhan99/codecopilot-skills)；独立个人技能集合建议命名为 **agent-skills**。
 安装不会擅自重命名远程仓库。
 
 旧版文档和 pi 适配层归档在 `docs/legacy/`。

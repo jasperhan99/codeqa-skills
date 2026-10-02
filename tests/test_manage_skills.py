@@ -14,7 +14,7 @@ class MigrationTests(unittest.TestCase):
         self.tmp = tempfile.TemporaryDirectory(); self.addCleanup(self.tmp.cleanup)
         self.root = Path(self.tmp.name); self.home = self.root / 'home'; self.repo = self.root / 'repo'; self.package = self.root / 'package'
         self.home.mkdir()
-        for name in ('codeqa', 'codeqa-light'):
+        for name in ('codecopilot', 'codecopilotlight'):
             self.skill(self.package / 'skills' / name, name)
         self.skill(self.home / '.agents/skills/custom', 'codex version')
         self.skill(self.home / '.claude/skills/custom', 'claude version')
@@ -32,29 +32,29 @@ class MigrationTests(unittest.TestCase):
         self.assertEqual((self.home / '.claude/skills/custom/SKILL.md').read_text(), 'claude version')
         self.assertEqual((self.home / '.agents/skills/skill0/references/example.txt').read_text(), 'resource')
         self.assertFalse((self.home / '.codex/skills/.system').is_symlink())
-        self.assertEqual((self.home / '.agents/skills/codeqa').resolve(), (self.home / '.claude/skills/codeqa').resolve())
+        self.assertEqual((self.home / '.agents/skills/codecopilot').resolve(), (self.home / '.claude/skills/codecopilot').resolve())
         self.assertEqual(manage.apply(self.home, self.repo, self.package)['status'], 'already-installed')
         manage.restore(Path(result['backup']))
         self.assertFalse((self.home / '.agents/skills/custom').is_symlink())
         self.assertTrue((self.home / '.agents/skills/skill0').is_symlink())
-        self.assertFalse((self.home / '.agents/skills/codeqa').exists())
+        self.assertFalse((self.home / '.agents/skills/codecopilot').exists())
     def test_changed_link_blocks_restore_before_any_mutation(self):
         result = manage.apply(self.home, self.repo, self.package)
-        link = self.home / '.claude/skills/codeqa'; link.unlink(); link.mkdir(); (link / 'user.txt').write_text('keep')
+        link = self.home / '.claude/skills/codecopilot'; link.unlink(); link.mkdir(); (link / 'user.txt').write_text('keep')
         with self.assertRaises(ValueError):manage.restore(Path(result['backup']))
         self.assertEqual((link / 'user.txt').read_text(), 'keep')
         self.assertTrue((self.home / '.agents/skills/custom').is_symlink())
         self.assertIn(str(link), manage.verify(self.home, self.repo))
     def test_existing_named_skill_never_overwritten(self):
-        self.skill(self.home / '.agents/skills/codeqa', 'user version')
+        self.skill(self.home / '.agents/skills/codecopilot', 'user version')
         with self.assertRaises(ValueError):manage.apply(self.home, self.repo, self.package)
-        self.assertEqual((self.home / '.agents/skills/codeqa/SKILL.md').read_text(), 'user version')
+        self.assertEqual((self.home / '.agents/skills/codecopilot/SKILL.md').read_text(), 'user version')
         self.assertFalse(self.repo.exists())
     def test_modified_shared_skill_not_replaced_on_reinstall(self):
         manage.apply(self.home, self.repo, self.package)
-        (self.repo / 'skills/codeqa/SKILL.md').write_text('local customization')
+        (self.repo / 'skills/codecopilot/SKILL.md').write_text('local customization')
         with self.assertRaises(ValueError):manage.apply(self.home, self.repo, self.package)
-        self.assertEqual((self.repo / 'skills/codeqa/SKILL.md').read_text(), 'local customization')
+        self.assertEqual((self.repo / 'skills/codecopilot/SKILL.md').read_text(), 'local customization')
     def test_cloud_variants_keep_their_own_writable_targets(self):
         manage.apply(self.home, self.repo, self.package)
         c = self.home / '.claude/skills/synced/account/memo/SKILL.md'
@@ -96,12 +96,12 @@ class MigrationTests(unittest.TestCase):
             with self.assertRaises(OSError):manage.apply(self.home, self.repo, self.package)
         self.assertFalse((self.home / '.agents/skills/custom').is_symlink())
         self.assertEqual((self.home / '.agents/skills/custom/SKILL.md').read_text(), 'codex version')
-        self.assertFalse((self.home / '.agents/skills/codeqa').exists())
+        self.assertFalse((self.home / '.agents/skills/codecopilot').exists())
     def test_git_init_failure_does_not_change_discovery_roots(self):
         with mock.patch.object(manage.subprocess, 'run', side_effect=subprocess.CalledProcessError(1, ['git', 'init'])):
             with self.assertRaises(subprocess.CalledProcessError):manage.apply(self.home, self.repo, self.package)
         self.assertFalse((self.home / '.agents/skills/custom').is_symlink())
-        self.assertFalse((self.home / '.agents/skills/codeqa').exists())
+        self.assertFalse((self.home / '.agents/skills/codecopilot').exists())
     def test_missing_git_marker_never_reports_already_installed(self):
         manage.apply(self.home, self.repo, self.package)
         (self.repo / '.git').rename(self.repo / 'saved-git')

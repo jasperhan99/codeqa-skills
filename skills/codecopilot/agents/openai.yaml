@@ -1,0 +1,6 @@
+interface:
+  display_name: "CodeCopilot"
+  short_description: "Implement with tests and independent review"
+  default_prompt: "Use $codecopilot to implement this task with necessary tests and independent QA."
+policy:
+  allow_implicit_invocation: false

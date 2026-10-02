@@ -1,32 +1,35 @@
-# CodeQA
+# CodeCopilot
 
 Two portable coding skills for **Codex and Claude Code**.
 
 | Skill | Behavior | Independent QA |
 | --- | --- | --- |
-| `codeqa` — default | Continuous coordinator, implementation, necessary tests, compact evidence, fresh review | Yes |
-| `codeqa-light` — light | Direct implementation and necessary tests | No |
+| `codecopilot` — default | Continuous coordinator, implementation, necessary tests, compact evidence, fresh review | Yes |
+| `codecopilotlight` — light | Direct implementation and necessary tests | No |
+| No invocation | Ordinary task; neither skill is activated | Not imposed by these skills |
 
 [中文说明](README.zh-CN.md) · [Setup and migration](docs/GUIDE.md)
+
+Both skills are explicit-only. “Default” means the reviewed mode when selected, not automatic activation. A new task without either invocation uses neither skill.
 
 ## Invoke
 
 **Claude Code**
 
 ```text
-/codeqa Add pagination to this endpoint.
-/codeqa-light Fix the incorrect empty-state text and run relevant checks.
+/codecopilot Add pagination to this endpoint.
+/codecopilotlight Fix the incorrect empty-state text and run relevant checks.
 ```
 
 **Codex**
 
 ```text
-$codeqa Add pagination to this endpoint.
-$codeqa-light Fix the incorrect empty-state text and run relevant checks.
+$codecopilot Add pagination to this endpoint.
+$codecopilotlight Fix the incorrect empty-state text and run relevant checks.
 ```
 
 Codex also offers `/skills`. A custom skill does not register an arbitrary native
-`/codeqa` command in Codex. Both hosts load the same `SKILL.md` files.
+`/codecopilot` command in Codex. Both hosts load the same `SKILL.md` files.
 
 ## Install these two skills
 
@@ -35,10 +38,10 @@ SKILL.md files, into your host's discovery directory. From this repository:
 
 ```sh
 mkdir -p ~/.agents/skills ~/.claude/skills
-ln -s "$PWD/skills/codeqa" ~/.agents/skills/codeqa
-ln -s "$PWD/skills/codeqa-light" ~/.agents/skills/codeqa-light
-ln -s "$PWD/skills/codeqa" ~/.claude/skills/codeqa
-ln -s "$PWD/skills/codeqa-light" ~/.claude/skills/codeqa-light
+ln -s "$PWD/skills/codecopilot" ~/.agents/skills/codecopilot
+ln -s "$PWD/skills/codecopilotlight" ~/.agents/skills/codecopilotlight
+ln -s "$PWD/skills/codecopilot" ~/.claude/skills/codecopilot
+ln -s "$PWD/skills/codecopilotlight" ~/.claude/skills/codecopilotlight
 ```
 
 If a name already exists, inspect it instead of overwriting it. Reload/restart the
@@ -57,7 +60,7 @@ python3 scripts/manage_skills.py verify --repo /path/to/agent-skills
 ```
 
 Use this **instead of** the manual links above when consolidating for the first
-time. It refuses existing conflicting `codeqa` skills and nonempty destinations.
+time. It refuses existing conflicting `codecopilot` skills and nonempty destinations.
 Existing directories are backed up outside the discovery roots. The command
 prints the backup path; see the guide for restoration and source-update behavior.
 System/plugin-managed skills stay under their own managers. Cloud-synced trees
@@ -74,12 +77,12 @@ specifies another choice. Configure a different host model in the host itself.
 
 Both modes preserve explicit project constraints and unrelated work. Neither
 skill grants merge, push, deployment or destructive-operation authorization.
-`codeqa` never silently drops QA; `codeqa-light` never silently adds it.
+`codecopilot` never silently drops QA; `codecopilotlight` never silently adds it.
 
 ## Repository layout
 
-- `skills/codeqa/`: default skill and optimized workflow reference.
-- `skills/codeqa-light/`: lightweight skill.
+- `skills/codecopilot/`: default skill and optimized workflow reference.
+- `skills/codecopilotlight/`: lightweight skill.
 - `scripts/manage_skills.py`: inspect, migrate, verify and restore local skill links.
 - `tests/`: migration preservation and restoration tests.
 - `docs/legacy/`: prior v3.2 documentation and optional pi adapter, for reference.
@@ -90,7 +93,7 @@ The earlier timing experiment found only a modest improvement: about 244 seconds
 versus 223 seconds across two paired runs. That is not a general performance
 promise; see [the experiment summary](docs/BENCHMARK.md).
 
-Recommended repository name: **codeqa**. Use **agent-skills** for your separate
+Repository: [codecopilot-skills](https://github.com/jasperhan99/codecopilot-skills). Use **agent-skills** for your separate
 personal collection. Renaming a remote repository is not part of installing skills.
 
 ## License

@@ -75,7 +75,7 @@ def build_plan(home, repo, package=PACKAGE):
                 continue
             if not source.is_dir():
                 raise ValueError(f'Unexpected non-directory skill entry: {source}')
-            if source.name in ('codeqa', 'codeqa-light'):
+            if source.name in ('codecopilot', 'codecopilotlight'):
                 raise ValueError(f'Existing {source.name} needs explicit conflict resolution: {source}')
             validate_source(source, repo)
             fingerprint = digest(source)
@@ -97,7 +97,7 @@ def build_plan(home, repo, package=PACKAGE):
             if source.name != 'synced':
                 shared.setdefault(source.name, destination)
             links.append({'path': str(source.relative_to(home)), 'target': destination})
-    for name in ('codeqa', 'codeqa-light'):
+    for name in ('codecopilot', 'codecopilotlight'):
         source = package / 'skills' / name
         validate_source(source, repo)
         sources.append({'source': str(source), 'destination': f'skills/{name}', 'digest': digest(source), 'upstream_link': None})
@@ -147,7 +147,7 @@ def apply(home, repo, package=PACKAGE):
         problems = verify(home, repo)
         if problems:
             raise ValueError('Existing migration has changed links; inspect before updating: ' + ', '.join(problems))
-        for name in ('codeqa', 'codeqa-light'):
+        for name in ('codecopilot', 'codecopilotlight'):
             if digest(package / 'skills' / name) != digest(repo / 'skills' / name):
                 raise ValueError(f'{name} differs from the shared copy; review and synchronize explicitly, not by overwriting.')
         return {'status': 'already-installed', 'repository': str(repo)}
@@ -169,7 +169,7 @@ def apply(home, repo, package=PACKAGE):
 
 Shared local skills repository for Codex and Claude Code.
 
-- `skills/`: shared personal skills, including CodeQA and CodeQA Light.
+- `skills/`: shared personal skills, including CodeCopilot and CodeCopilot Light.
 - `variants/`: existing host-specific differences, preserved without rewriting.
 - `managed/`: host-specific synced skill trees; the original host may update them.
 - `vendor/skill0`: an x-cmd skill0 snapshot; upstream remains in its managed install.
@@ -179,17 +179,18 @@ Codex reads the links under `~/.agents/skills`; Claude Code reads
 `~/.claude/skills`. Legacy Codex entries are also linked where they already existed.
 System and plugin skills remain managed by their applications.
 
-Claude Code: `/codeqa <task>`, `/codeqa-light <task>`.
-Codex: `$codeqa <task>`, `$codeqa-light <task>` or `/skills`.
+Claude Code: `/codecopilot <task>`, `/codecopilotlight <task>`.
+Codex: `$codecopilot <task>`, `$codecopilotlight <task>` or `/skills`.
 
-CodeQA is reviewed development; Light is direct development with necessary tests
+Neither skill activates without an explicit invocation.
+CodeCopilot is reviewed development; Light is direct development with necessary tests
 and no independent QA. Skills do not change the host model. The package QA default
 is pi / openai-codex / gpt-6-astra / medium unless overridden.
 
 This repository is local. It has not been published. Imported content retains its
 original license and provenance; no blanket license is asserted over third-party skills.
 
-Edit the shared personal skills here. For CodeQA package updates, compare the source
+Edit the shared personal skills here. For CodeCopilot package updates, compare the source
 package and this copy before replacing it; the installer refuses conflicting updates.
 Cloud sync or x-cmd installers can replace links: run the source package's
 `scripts/manage_skills.py verify --repo PATH` after those tools update.

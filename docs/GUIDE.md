@@ -2,15 +2,19 @@
 
 ## Choose a mode
 
-`codeqa-light` means direct implementation plus necessary tests, with **no independent
-review**. `codeqa` means the default optimized workflow with independent review.
+`codecopilotlight` means direct implementation plus necessary tests, with **no independent
+review**. `codecopilot` means the default optimized workflow with independent review.
 Do not use the old “read WORKFLOW.md before every task” rule alongside an explicit
-light invocation; replace it with “Use the selected CodeQA skill” when adopting
+light invocation; replace it with “Use a CodeCopilot skill only when explicitly invoked” when adopting
 these entry points. Existing stronger project constraints still apply.
 
 The skill package is portable. It does not require copying workflow files into
 new target projects, does not change the active host model and does not grant
 release authorization. Details are inside the selected skill.
+
+Without an explicit invocation, neither skill applies to a new task. Claude Code uses
+`disable-model-invocation: true`; Codex uses `policy.allow_implicit_invocation: false`.
+Mentioning the skill in documentation or asking to edit it does not activate it.
 
 ## Shared collection
 
@@ -57,8 +61,8 @@ run verification afterward rather than assuming links are permanent.
 
 ## Validate discovery
 
-Codex: open `/skills` or mention `$codeqa` / `$codeqa-light`.
-Claude Code: type `/codeqa` or `/codeqa-light`.
+Codex: open `/skills` or mention `$codecopilot` / `$codecopilotlight`.
+Claude Code: type `/codecopilot` or `/codecopilotlight`.
 If newly installed skills are missing, restart the host. Finding a skill locally
 is separate from authenticating a model or successfully running QA.
 
