@@ -1,0 +1,4 @@
+interface:
+  display_name: "CodeQA Light"
+  short_description: "Implement directly with necessary tests"
+  default_prompt: "Use $codeqa-light to implement this task directly and run necessary tests without independent QA."

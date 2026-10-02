@@ -1,0 +1,4 @@
+interface:
+  display_name: "CodeQA"
+  short_description: "Implement with tests and independent review"
+  default_prompt: "Use $codeqa to implement this task with necessary tests and independent QA."

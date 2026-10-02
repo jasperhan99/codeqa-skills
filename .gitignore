@@ -4,3 +4,6 @@
 !.env.example
 __pycache__/
 *.pyc
+
+# Local diagnostic runs; preserve on disk, do not publish generated repositories.
+/benchmark-results/

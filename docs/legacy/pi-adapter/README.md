@@ -1,3 +1,6 @@
+> Archived v3.2 adapter. Use the portable skills in the repository root instead.
+> The instructions below describe the historical layout and are not the current installation guide.
+
 # pi adapter (optional)
 
 Thin wrappers that let [pi coding agent](https://github.com/earendil-works/pi/tree/main/packages/coding-agent) run [WORKFLOW.md](../../WORKFLOW.md) with a separate implementer and a read-only reviewer. The rules live only in WORKFLOW.md; these files just point to it. pi CLI is required for delegated model calls; only this adapter and its subagent plugin are optional. Configure the provider/model explicitly for each worker and preserve the fresh-session and read-only restrictions in WORKFLOW.md.
